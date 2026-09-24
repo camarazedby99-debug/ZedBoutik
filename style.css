@@ -35,3 +35,8 @@ h2{font-size:32px;margin:30px 0 22px}.cat-grid{display:grid;grid-template-column
 .cart-total{font-size:22px;font-weight:800;margin:20px 0}
 .cart-item{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid #eee;padding:12px 0}
 .cart-item img{width:55px;height:55px;object-fit:cover;border-radius:10px;vertical-align:middle;margin-right:8px}
+
+.seller-orders{display:flex;flex-direction:column;gap:12px}
+.order-card{border:1px solid #ddd;border-radius:14px;padding:14px;background:#fff}
+.order-card p{margin:8px 0}
+.order-card select{padding:10px;border-radius:10px;border:1px solid #ccc;margin-left:6px}

@@ -94,6 +94,7 @@ function openSeller(){
   document.getElementById('sellerWelcome').textContent=`Bienvenue ${user.name}. Publiez vos produits sur ZedBoutik.`;
   document.getElementById('sellerModal').classList.remove('hidden');
   renderSellerProducts();
+  renderSellerOrders();
 }
 function closeSeller(){document.getElementById('sellerModal')?.classList.add('hidden')}
 
@@ -162,8 +163,17 @@ function openProduct(id){
 }
 function closeProduct(){document.getElementById('productModal')?.classList.add('hidden')}
 function addToCart(id){
- const p=allProducts().find(x=>String(x.id)===String(id));if(!p)return;const c=getCart(),e=c.find(x=>String(x.id)===String(id));
- if(e)e.qty++;else c.push({id:p.id,name:p.name,price:p.price,image:p.image||'',qty:1});saveCart(c);updateCartCount();closeProduct();alert('✅ Produit ajouté au panier !')
+ const p=allProducts().find(x=>String(x.id)===String(id));
+ if(!p)return;
+ const c=getCart(),e=c.find(x=>String(x.id)===String(id));
+ if(e){
+   if(e.qty >= Number(p.stock||0)){ alert('Stock disponible insuffisant.'); return; }
+   e.qty++;
+ }else{
+   if(Number(p.stock||0) <= 0){ alert('Produit en rupture de stock.'); return; }
+   c.push({id:p.id,name:p.name,price:p.price,image:p.image||'',qty:1,sellerEmail:p.sellerEmail||'',sellerName:p.sellerName||''});
+ }
+ saveCart(c);updateCartCount();closeProduct();alert('✅ Produit ajouté au panier !')
 }
 function openCart(){
  const c=getCart(),b=document.getElementById('cartItems');if(!b)return;
@@ -179,17 +189,79 @@ function openCheckout(){
  closeCart();document.getElementById('checkoutModal').classList.remove('hidden')
 }
 function closeCheckout(){document.getElementById('checkoutModal')?.classList.add('hidden')}
+function getOrders(){
+ try{return JSON.parse(localStorage.getItem('zedboutik_orders')||'[]')}catch(e){return window.__orders||[]}
+}
+function saveOrders(orders){
+ try{localStorage.setItem('zedboutik_orders',JSON.stringify(orders))}catch(e){window.__orders=orders}
+}
+
 function placeOrder(){
  const n=document.getElementById('deliveryName').value.trim(),ph=document.getElementById('deliveryPhone').value.trim(),a=document.getElementById('deliveryAddress').value.trim(),pay=document.getElementById('paymentMethod').value;
  if(!n||!ph||!a||!pay){alert('Veuillez remplir tous les champs de livraison et de paiement.');return}
- let orders=[];try{orders=JSON.parse(localStorage.getItem('zedboutik_orders')||'[]')}catch(e){}
- orders.push({id:'CMD-'+Date.now(),name:n,phone:ph,address:a,payment:pay,items:getCart(),createdAt:new Date().toISOString()});
- try{localStorage.setItem('zedboutik_orders',JSON.stringify(orders))}catch(e){}
- saveCart([]);updateCartCount();closeCheckout();alert('✅ Commande enregistrée !')
+ const cart=getCart();
+ if(!cart.length){alert('Votre panier est vide.');return}
+ const user=getCurrentUser();
+ const orders=getOrders();
+ const order={
+   id:'CMD-'+Date.now(),
+   customerEmail:user?.email||'',
+   customerName:n,
+   phone:ph,
+   address:a,
+   payment:pay,
+   items:cart,
+   total:cart.reduce((sum,i)=>sum+(Number(i.price)*Number(i.qty)),0),
+   status:'Nouvelle',
+   createdAt:new Date().toISOString()
+ };
+ orders.push(order);
+ saveOrders(orders);
+ saveCart([]);
+ updateCartCount();
+ closeCheckout();
+ alert('✅ Commande enregistrée !');
 }
+
+function formatDate(iso){
+ try{return new Date(iso).toLocaleString('fr-FR')}catch(e){return iso||''}
+}
+function statusOptions(current){
+ return ['Nouvelle','En préparation','Expédiée','Livrée','Annulée'].map(s=>`<option value="${s}" ${s===current?'selected':''}>${s}</option>`).join('');
+}
+function renderSellerOrders(){
+ const box=document.getElementById('sellerOrders'),user=getCurrentUser();
+ if(!box||!user)return;
+ const orders=getOrders().filter(o=>o.items?.some(i=>i.sellerEmail===user.email));
+ if(!orders.length){box.innerHTML='<p>Aucune commande pour le moment.</p>';return}
+ box.innerHTML=orders.slice().reverse().map(o=>{
+   const items=o.items.filter(i=>i.sellerEmail===user.email);
+   const total=items.reduce((sum,i)=>sum+Number(i.price)*Number(i.qty),0);
+   return `<div class="order-card">
+     <div><strong>${escapeHtml(o.id)}</strong> · ${formatDate(o.createdAt)}</div>
+     <p><strong>Client :</strong> ${escapeHtml(o.customerName)} · ${escapeHtml(o.phone)}</p>
+     <p><strong>Adresse :</strong> ${escapeHtml(o.address)}</p>
+     <p><strong>Paiement :</strong> ${escapeHtml(o.payment==='livraison'?'Paiement à la livraison':o.payment==='wave'?'Wave':'Orange Money')}</p>
+     <p><strong>Produits :</strong> ${items.map(i=>`${escapeHtml(i.name)} × ${i.qty}`).join(', ')}</p>
+     <p><strong>Total :</strong> ${total.toLocaleString('fr-FR')} FCFA</p>
+     <label><strong>Statut :</strong> <select onchange="updateOrderStatus('${o.id}',this.value)">${statusOptions(o.status)}</select></label>
+   </div>`;
+ }).join('');
+}
+function updateOrderStatus(id,status){
+ const orders=getOrders();
+ const order=orders.find(o=>o.id===id);
+ if(!order)return;
+ order.status=status;
+ saveOrders(orders);
+ renderSellerOrders();
+ alert('✅ Statut de la commande mis à jour.');
+}
+
 
 document.addEventListener('DOMContentLoaded',()=>{
   renderProducts();
   updateAccountButton();
   updateCartCount();
+  renderSellerOrders();
 });

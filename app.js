@@ -60,7 +60,7 @@ function showRegister(){document.getElementById('loginForm')?.classList.add('hid
 
 async function updateAccountButton(){
   const btn = document.getElementById('loginBtn');
-  const user = getCurrentUser();
+  
 const { data: { user: authUser } } = await supabaseClient.auth.getUser();
   if (!btn) return;
 

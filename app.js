@@ -58,16 +58,17 @@ function closeAuth(){document.getElementById('authModal')?.classList.add('hidden
 function showLogin(){document.getElementById('loginForm')?.classList.remove('hidden');document.getElementById('registerForm')?.classList.add('hidden')}
 function showRegister(){document.getElementById('loginForm')?.classList.add('hidden');document.getElementById('registerForm')?.classList.remove('hidden')}
 
-function updateAccountButton(){
+async function updateAccountButton(){
   const btn = document.getElementById('loginBtn');
   const user = getCurrentUser();
-
+const { data: { user: authUser } } = await supabaseClient.auth.getUser();
   if (!btn) return;
 
-  if (user) {
-    const name = user.full_name || user.email || 'Mon compte';
+ if (authUser) { 
+   
+ const name = authUser.user_metadata?.full_name || authUser.email || 'Mon compte';
     btn.textContent = '👤 ' + name;
-    btn.onclick = user.role === 'vendeur' ? openSeller : openAuth;
+   btn.onclick = authUser.user_metadata?.role === 'vendeur' ? openSeller : openAuth;
   } else {
     btn.textContent = '👤 Connexion';
     btn.onclick = openAuth;

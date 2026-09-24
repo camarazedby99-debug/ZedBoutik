@@ -59,10 +59,19 @@ function showLogin(){document.getElementById('loginForm')?.classList.remove('hid
 function showRegister(){document.getElementById('loginForm')?.classList.add('hidden');document.getElementById('registerForm')?.classList.remove('hidden')}
 
 function updateAccountButton(){
-  const btn=document.getElementById('loginBtn'), user=getCurrentUser();
-  if(!btn)return;
-  btn.textContent=user?(user.role==='vendeur'?'🏪 '+user.name:'👤 '+user.name):'👤 Connexion';
-  btn.onclick=user?(user.role==='vendeur'?openSeller:openAuth):openAuth;
+  const btn = document.getElementById('loginBtn');
+  const user = getCurrentUser();
+
+  if (!btn) return;
+
+  if (user) {
+    const name = user.full_name || user.email || 'Mon compte';
+    btn.textContent = '👤 ' + name;
+    btn.onclick = user.role === 'vendeur' ? openSeller : openAuth;
+  } else {
+    btn.textContent = '👤 Connexion';
+    btn.onclick = openAuth;
+  }
 }
 
   async function register() {

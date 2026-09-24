@@ -1,3 +1,6 @@
+cons. const SUPABASE_URL = 'https://sypixtgbbznxfnhydall.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_K5_plneGF5G1lrOjAobM5g_jE4DOk4f';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 const demoData=[
   {id:'demo1',name:'Parfum Premium',price:10000,category:'Parfums',description:'Parfum premium',stock:10,image:''},
   {id:'demo2',name:'Téléphone',price:75000,category:'Électronique',description:'Téléphone',stock:5,image:''},

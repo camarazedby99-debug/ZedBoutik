@@ -1,4 +1,4 @@
-cons. const SUPABASE_URL = 'https://sypixtgbbznxfnhydall.supabase.co';
+const SUPABASE_URL = 'https://sypixtgbbznxfnhydall.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_K5_plneGF5G1lrOjAobM5g_jE4DOk4f';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 const demoData=[

@@ -1,32 +1,44 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ZedBoutik – Marketplace sénégalaise</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ZedBoutik - Marketplace sénégalaise</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="header">
   <div class="logo">ZedBoutik</div>
-  <div class="search"><input id="searchInput" placeholder="Rechercher un produit…"><button onclick="searchProducts()">🔎</button></div>
-  <button id="loginBtn" class="login-btn">👤 Connexion</button>
+  <div class="search">
+    <input id="searchInput" placeholder="Rechercher un produit..." oninput="searchProducts()">
+    <button onclick="searchProducts()">🔎</button>
+  </div>
+  <button id="loginBtn" class="login-btn" onclick="openAuth()">👤 Connexion</button>
 </header>
 
 <main>
-<section class="hero"><h1>Marketplace du Sénégal</h1><p>Achète. Vends. Simplement.</p></section>
+  <section class="hero">
+    <h1>Marketplace du Sénégal</h1>
+    <p>Achète. Vends. Simplement.</p>
+  </section>
 
-<section class="categories">
-<h2>Catégories</h2>
-<div class="cat-grid">
-<button onclick="filterCategory('Mode')">👕 Mode</button>
-<button onclick="filterCategory('Électronique')">💻 Électronique</button>
-<button onclick="filterCategory('Maison')">🏠 Maison</button>
-<button onclick="filterCategory('Parfums')">🌸 Parfums</button>
-</div>
-</section>
+  <section class="categories">
+    <h2>Catégories</h2>
+    <div class="cat-grid">
+      <button onclick="filterCategory('Mode')">👕 Mode</button>
+      <button onclick="filterCategory('Électronique')">💻 Électronique</button>
+      <button onclick="filterCategory('Maison')">🏠 Maison</button>
+      <button onclick="filterCategory('Parfums')">🌸 Parfums</button>
+      <button onclick="filterCategory('Alimentation')">🛒 Alimentation</button>
+      <button onclick="filterCategory('Autres')">📦 Autres</button>
+      <button onclick="renderProducts()">Tout</button>
+    </div>
+  </section>
 
-<section><h2>Produits</h2><div id="products" class="products"></div></section>
+  <section>
+    <h2>Produits</h2>
+    <div id="products" class="products"></div>
+  </section>
 </main>
 
 <div id="authModal" class="modal hidden">
@@ -49,20 +61,14 @@
       <input id="regPassword" type="password" placeholder="Mot de passe">
 
       <h3>Je veux :</h3>
-      <div class="role-grid">
-        <label class="role-option">
-          <input type="radio" name="role" value="client" checked>
-          <span>👤</span>
-          <strong>Client</strong>
-          <small>Acheter des produits</small>
-        </label>
-        <label class="role-option">
-          <input type="radio" name="role" value="vendeur">
-          <span>🏪</span>
-          <strong>Vendeur</strong>
-          <small>Vendre mes produits</small>
-        </label>
-      </div>
+      <label class="role-option">
+        <input type="radio" name="role" value="client" checked>
+        <span>👤</span><strong>Client</strong> — Acheter des produits
+      </label>
+      <label class="role-option">
+        <input type="radio" name="role" value="vendeur">
+        <span>🏪</span><strong>Vendeur</strong> — Vendre mes produits
+      </label>
 
       <button class="primary" onclick="register()">S'inscrire</button>
       <p>Déjà un compte ? <button class="link" onclick="showLogin()">Se connecter</button></p>
@@ -70,6 +76,38 @@
   </div>
 </div>
 
-<script src="app.js?v=3"></script>
+<div id="sellerModal" class="modal hidden">
+  <div class="modal-card seller-card">
+    <button class="close" onclick="closeSeller()">×</button>
+    <h2>🏪 Espace vendeur</h2>
+    <p id="sellerWelcome"></p>
+
+    <h3>Ajouter un produit</h3>
+    <input id="productName" placeholder="Nom du produit">
+    <input id="productPrice" type="number" min="0" placeholder="Prix en FCFA">
+    <select id="productCategory">
+      <option value="">Choisir une catégorie</option>
+      <option>Mode</option>
+      <option>Électronique</option>
+      <option>Maison</option>
+      <option>Parfums</option>
+      <option>Alimentation</option>
+      <option>Autres</option>
+    </select>
+    <textarea id="productDescription" placeholder="Description du produit"></textarea>
+    <input id="productStock" type="number" min="0" placeholder="Stock disponible">
+    <label class="file-label">📷 Photo du produit
+      <input id="productImage" type="file" accept="image/*" onchange="previewImage(event)">
+    </label>
+    <img id="imagePreview" class="image-preview hidden" alt="Aperçu du produit">
+
+    <button class="primary" onclick="addProduct()">Publier le produit</button>
+
+    <h3>Mes produits</h3>
+    <div id="sellerProducts" class="seller-products"></div>
+  </div>
+</div>
+
+<script src="app.js?v=4"></script>
 </body>
 </html>

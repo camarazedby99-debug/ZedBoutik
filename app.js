@@ -138,7 +138,7 @@ async function login() {
     alert('Email ou mot de passe incorrect.');
     return;
   }
-saveCurrentUser({ id: data.user.id, email: data.user.email, role: data.user.user_metadata?.role || 'client', full_name: data.user.user_metadata?.full_name || email });
+
   updateAccountButton();
   alert('✅ Connexion réussie !');
   closeAuth();

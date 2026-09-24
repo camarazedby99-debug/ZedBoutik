@@ -65,32 +65,74 @@ function updateAccountButton(){
   btn.onclick=user?(user.role==='vendeur'?openSeller:openAuth):openAuth;
 }
 
-function register(){
-  const name=document.getElementById('regName')?.value.trim();
-  const phone=document.getElementById('regPhone')?.value.trim();
-  const email=document.getElementById('regEmail')?.value.trim().toLowerCase();
-  const password=document.getElementById('regPassword')?.value;
-  const role=document.querySelector('input[name="role"]:checked')?.value||'client';
-  if(!name||!phone||!email||!password){alert('Veuillez remplir tous les champs.');return}
-  if(password.length<6){alert('Le mot de passe doit contenir au moins 6 caractères.');return}
-  const users=getUsers();
-  if(users.some(u=>u.email===email)){alert('Cet email est déjà utilisé.');return}
-  const user={name,phone,email,password,role};
-  users.push(user);saveUsers(users);saveCurrentUser(user);
-  alert(role==='vendeur'?'✅ Compte vendeur créé avec succès !':'✅ Compte client créé avec succès !');
-  closeAuth();updateAccountButton();
-  if(role==='vendeur')openSeller();
+async function registre() {
+  const nom = document.getElementById('regName').value.trim();
+  const telephone = document.getElementById('regPhone').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const motDePasse = document.getElementById('regPassword').value;
+  const role = document.querySelector('input[name="role"]:checked')?.value;
+
+  if (!nom || !telephone || !email || !motDePasse || !role) {
+    alert('Veuillez remplir tous les champs.');
+    return;
+  }
+
+  if (motDePasse.length < 6) {
+    alert('Le mot de passe doit contenir au moins 6 caractères.');
+    return;
+  }
+
+  const { data, error } = await supabaseClient.auth.signUp({
+    email: email,
+    password: motDePasse
+  });
+
+  if (error) {
+    alert('Erreur : ' + error.message);
+    return;
+  }
+
+  const { error: profileError } = await supabaseClient
+    .from('profiles')
+    .insert({
+      id: data.user.id,
+      full_name: nom,
+      phone: telephone,
+      email: email,
+      role: role
+    });
+
+  if (profileError) {
+    alert('Compte créé, mais erreur profil : ' + profileError.message);
+    return;
+  }
+
+  alert('✅ Compte créé avec succès !');
+  closeAuth();
 }
 
-function login(){
-  const email=document.getElementById('loginEmail')?.value.trim().toLowerCase();
-  const password=document.getElementById('loginPassword')?.value||'';
-  const user=getUsers().find(u=>u.email===email&&u.password===password);
-  if(!user){alert('Email ou mot de passe incorrect.');return}
-  saveCurrentUser(user);alert(`Bienvenue ${user.name} !`);closeAuth();updateAccountButton();
-  if(user.role==='vendeur')openSeller();
-}
+async function login() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
 
+  if (!email || !password) {
+    alert('Veuillez entrer votre email et votre mot de passe.');
+    return;
+  }
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: email,
+    password: password
+  });
+
+  if (error) {
+    alert('Email ou mot de passe incorrect.');
+    return;
+  }
+
+  alert('✅ Connexion réussie !');
+  closeAuth();
+}
 function openSeller(){
   const user=getCurrentUser();
   if(!user||user.role!=='vendeur'){openAuth();return}

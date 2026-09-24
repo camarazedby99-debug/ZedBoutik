@@ -32,7 +32,7 @@ function renderProducts(list=allProducts()){
   if(!box)return;
   if(!list.length){box.innerHTML='<p>Aucun produit trouvé.</p>';return}
   box.innerHTML=list.map(p=>`
-    <article class="product">
+    <article class="product" onclick="openProduct('${p.id}')">
       ${p.image?`<img src="${p.image}" alt="${escapeHtml(p.name)}">`:''}
       <h3>${escapeHtml(p.name)}</h3>
       <div class="price">${Number(p.price).toLocaleString('fr-FR')} FCFA</div>
@@ -151,7 +151,45 @@ function deleteProduct(id){
   renderSellerProducts();renderProducts();
 }
 
+
+function getCart(){try{return JSON.parse(localStorage.getItem('zedboutik_cart')||'[]')}catch(e){return window.__cart||[]}}
+function saveCart(c){try{localStorage.setItem('zedboutik_cart',JSON.stringify(c))}catch(e){window.__cart=c}}
+function updateCartCount(){const e=document.getElementById('cartCount');if(e)e.textContent=getCart().reduce((s,i)=>s+i.qty,0)}
+function openProduct(id){
+ const p=allProducts().find(x=>String(x.id)===String(id));if(!p)return;
+ document.getElementById('productDetail').innerHTML=`${p.image?`<img src="${p.image}" class="detail-image" alt="${escapeHtml(p.name)}">`:''}<h2>${escapeHtml(p.name)}</h2><div class="price">${Number(p.price).toLocaleString('fr-FR')} FCFA</div><p>${escapeHtml(p.description||'')}</p><p><strong>Catégorie :</strong> ${escapeHtml(p.category)}</p><p><strong>Stock :</strong> ${p.stock}</p><button class="primary" onclick="addToCart('${p.id}')">🛒 Ajouter au panier</button>`;
+ document.getElementById('productModal').classList.remove('hidden')
+}
+function closeProduct(){document.getElementById('productModal')?.classList.add('hidden')}
+function addToCart(id){
+ const p=allProducts().find(x=>String(x.id)===String(id));if(!p)return;const c=getCart(),e=c.find(x=>String(x.id)===String(id));
+ if(e)e.qty++;else c.push({id:p.id,name:p.name,price:p.price,image:p.image||'',qty:1});saveCart(c);updateCartCount();closeProduct();alert('✅ Produit ajouté au panier !')
+}
+function openCart(){
+ const c=getCart(),b=document.getElementById('cartItems');if(!b)return;
+ b.innerHTML=c.length?c.map(i=>`<div class="cart-item"><div>${i.image?`<img src="${i.image}" alt="">`:''}<strong>${escapeHtml(i.name)}</strong></div><div>${i.qty} × ${Number(i.price).toLocaleString('fr-FR')} FCFA <button class="delete-btn" onclick="removeFromCart('${i.id}')">Supprimer</button></div></div>`).join(''):'<p>Votre panier est vide.</p>';
+ document.getElementById('cartTotal').textContent=`Total : ${c.reduce((s,i)=>s+i.price*i.qty,0).toLocaleString('fr-FR')} FCFA`;
+ document.getElementById('cartModal').classList.remove('hidden')
+}
+function closeCart(){document.getElementById('cartModal')?.classList.add('hidden')}
+function removeFromCart(id){saveCart(getCart().filter(i=>String(i.id)!==String(id)));updateCartCount();openCart()}
+function openCheckout(){
+ if(!getCart().length){alert('Votre panier est vide.');return} const u=getCurrentUser();
+ if(u){document.getElementById('deliveryName').value=u.name||'';document.getElementById('deliveryPhone').value=u.phone||''}
+ closeCart();document.getElementById('checkoutModal').classList.remove('hidden')
+}
+function closeCheckout(){document.getElementById('checkoutModal')?.classList.add('hidden')}
+function placeOrder(){
+ const n=document.getElementById('deliveryName').value.trim(),ph=document.getElementById('deliveryPhone').value.trim(),a=document.getElementById('deliveryAddress').value.trim(),pay=document.getElementById('paymentMethod').value;
+ if(!n||!ph||!a||!pay){alert('Veuillez remplir tous les champs de livraison et de paiement.');return}
+ let orders=[];try{orders=JSON.parse(localStorage.getItem('zedboutik_orders')||'[]')}catch(e){}
+ orders.push({id:'CMD-'+Date.now(),name:n,phone:ph,address:a,payment:pay,items:getCart(),createdAt:new Date().toISOString()});
+ try{localStorage.setItem('zedboutik_orders',JSON.stringify(orders))}catch(e){}
+ saveCart([]);updateCartCount();closeCheckout();alert('✅ Commande enregistrée !')
+}
+
 document.addEventListener('DOMContentLoaded',()=>{
   renderProducts();
   updateAccountButton();
+  updateCartCount();
 });

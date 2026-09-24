@@ -30,3 +30,8 @@ h2{font-size:32px;margin:30px 0 22px}.cat-grid{display:grid;grid-template-column
 .delete-btn{border:0;background:#eee;border-radius:10px;padding:8px}
 @media(max-width:750px){.header{flex-wrap:wrap}.logo{width:100%}.search{order:3;max-width:none;width:100%}.cat-grid{grid-template-columns:repeat(2,1fr)}.products{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:32px}.hero p{font-size:20px}}
 @media(max-width:480px){.products{grid-template-columns:1fr}.cat-grid button{padding:20px 5px}.modal-card{padding:28px 18px}}
+
+.detail-image{width:100%;max-height:330px;object-fit:cover;border-radius:18px;margin-bottom:15px}
+.cart-total{font-size:22px;font-weight:800;margin:20px 0}
+.cart-item{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid #eee;padding:12px 0}
+.cart-item img{width:55px;height:55px;object-fit:cover;border-radius:10px;vertical-align:middle;margin-right:8px}

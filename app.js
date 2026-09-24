@@ -68,7 +68,7 @@ async function syncCurrentUser(authUser) {
     name:
       profile?.full_name ||
       authUser.user_metadata?.full_name ||
-      authUser.email ||
+    
       'Utilisateur',
     phone:
       profile?.phone ||

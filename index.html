@@ -1,6 +1,49 @@
-<!doctype html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ZedBoutik</title><link rel="stylesheet" href="style.css"></head><body>
-<header><div class="logo">Zed<span>Boutik</span></div><button>👤 Connexion</button></header>
-<section class="hero"><p>🇸🇳 Marketplace du Sénégal</p><h1>Achète. Vends.<br><span>Simplement.</span></h1><div class="search"><input id="search" placeholder="🔎 Que recherchez-vous ?"><button onclick="searchProducts()">Rechercher</button></div></section>
-<section><h2>Catégories</h2><div class="cats"><button onclick="filterCat('Mode')">👗 Mode</button><button onclick="filterCat('Téléphones')">📱 Téléphones</button><button onclick="filterCat('Beauté')">💄 Beauté</button><button onclick="filterCat('Maison')">🏠 Maison</button><button onclick="filterCat('Chaussures')">👟 Chaussures</button><button onclick="filterCat('Parfums')">🧴 Parfums</button></div></section>
-<section><h2>🔥 Produits populaires</h2><div id="products" class="products"></div></section>
-<section class="seller"><h2>🏪 Vends sur ZedBoutik</h2><p>Crée ta boutique et présente tes produits au Sénégal.</p><button>Créer ma boutique</button></section><footer>© 2026 ZedBoutik — Sénégal 🇸🇳</footer><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZedBoutik — Marketplace sénégalaise</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="header">
+  <div class="logo">ZedBoutik</div>
+  <div class="search"><input id="searchInput" placeholder="Rechercher un produit..."><button onclick="searchProducts()">🔎</button></div>
+  <button id="loginBtn" class="login-btn">👤 Connexion</button>
+</header>
+<main>
+<section class="hero"><h1>Marketplace du Sénégal</h1><p>Achète. Vends. Simplement.</p></section>
+<section class="categories">
+<h2>Catégories</h2>
+<div class="cat-grid">
+<button onclick="filterCategory('Mode')">👕 Mode</button><button onclick="filterCategory('Téléphones')">📱 Téléphones</button>
+<button onclick="filterCategory('Électronique')">💻 Électronique</button><button onclick="filterCategory('Beauté')">💄 Beauté</button>
+<button onclick="filterCategory('Maison')">🏠 Maison</button><button onclick="filterCategory('Chaussures')">👟 Chaussures</button>
+<button onclick="filterCategory('Parfums')">🌸 Parfums</button><button onclick="filterCategory('Alimentation')">🛒 Alimentation</button>
+</div></section>
+<section><h2>Produits</h2><div id="products" class="products"></div></section>
+</main>
+<div id="authModal" class="modal hidden">
+ <div class="modal-card">
+  <button class="close" onclick="closeAuth()">✕</button>
+  <div id="loginForm">
+   <h2>Connexion</h2>
+   <input id="loginEmail" type="email" placeholder="Email">
+   <input id="loginPassword" type="password" placeholder="Mot de passe">
+   <button class="primary" onclick="login()">Se connecter</button>
+   <p>Pas encore de compte ? <button class="link" onclick="showRegister()">Créer un compte</button></p>
+  </div>
+  <div id="registerForm" class="hidden">
+   <h2>Créer un compte</h2>
+   <input id="regName" placeholder="Nom">
+   <input id="regEmail" type="email" placeholder="Email">
+   <input id="regPassword" type="password" placeholder="Mot de passe">
+   <button class="primary" onclick="register()">S'inscrire</button>
+   <p>Déjà un compte ? <button class="link" onclick="showLogin()">Se connecter</button></p>
+  </div>
+ </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

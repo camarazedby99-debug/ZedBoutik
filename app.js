@@ -65,7 +65,7 @@ function updateAccountButton(){
   btn.onclick=user?(user.role==='vendeur'?openSeller:openAuth):openAuth;
 }
 
-async function registre() {
+  async function register() {
   const nom = document.getElementById('regName').value.trim();
   const telephone = document.getElementById('regPhone').value.trim();
   const email = document.getElementById('regEmail').value.trim();

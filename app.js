@@ -311,3 +311,15 @@ document.addEventListener('DOMContentLoaded',()=>{
   updateCartCount();
   renderSellerOrders();
 });
+supabaseClient.auth.getSession().then(({ data }) => {
+  if (data.session?.user) {
+    const user = data.session.user;
+    saveCurrentUser({
+      id: user.id,
+      email: user.email,
+      role: user.user_metadata?.role || 'client',
+      full_name: user.user_metadata?.full_name || user.email
+    });
+    updateAccountButton();
+  }
+});

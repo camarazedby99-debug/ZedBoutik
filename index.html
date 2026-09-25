@@ -2,137 +2,115 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ZedBoutik - Marketplace sénégalaise</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <title>ZedBoutik — Achète. Vends. Simplement.</title>
+  <link rel="stylesheet" href="style.css?v=1">
 </head>
 <body>
-<header class="header">
-  <div class="logo">ZedBoutik</div>
-  <div class="search">
-    <input id="searchInput" placeholder="Rechercher un produit..." oninput="searchProducts()">
-    <button onclick="searchProducts()">🔎</button>
+<header class="topbar">
+  <a class="brand" href="#" onclick="showHome();return false">ZedBoutik</a>
+  <div class="top-actions">
+    <button class="btn ghost" id="cartBtn">🛒 Panier <span id="cartCount">0</span></button>
+    <button class="btn dark" id="accountBtn">👤 Connexion</button>
   </div>
-  <button id="cartBtn" class="login-btn" onclick="openCart()">🛒 Panier (<span id="cartCount">0</span>)</button>
-<button id="loginBtn" class="login-btn" onclick="openAuth()">👤 Connexion</button>
 </header>
 
 <main>
-  <section class="hero">
-    <h1>Marketplace du Sénégal</h1>
-    <p>Achète. Vends. Simplement.</p>
+  <section class="search-wrap">
+    <input id="searchInput" type="search" placeholder="Rechercher un produit…" autocomplete="off">
+    <button id="searchBtn" class="search-btn" aria-label="Rechercher">🔎</button>
   </section>
 
-  <section class="categories">
-    <h2>Catégories</h2>
-    <div class="cat-grid">
-      <button onclick="filterCategory('Mode')">👕 Mode</button>
-      <button onclick="filterCategory('Électronique')">💻 Électronique</button>
-      <button onclick="filterCategory('Maison')">🏠 Maison</button>
-      <button onclick="filterCategory('Parfums')">🌸 Parfums</button>
-      <button onclick="filterCategory('Alimentation')">🛒 Alimentation</button>
-      <button onclick="filterCategory('Autres')">📦 Autres</button>
-      <button onclick="renderProducts()">Tout</button>
+  <section class="hero">
+    <p class="eyebrow">Marketplace sénégalaise</p>
+    <h1>Achète. Vends.<br>Simplement.</h1>
+    <p>Découvre les produits de vendeurs partout au Sénégal.</p>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Catégories</h2><button class="link-btn" data-category="">Tout voir</button></div>
+    <div class="categories" id="categories">
+      <button data-category="Mode">👕 <span>Mode</span></button>
+      <button data-category="Électronique">💻 <span>Électronique</span></button>
+      <button data-category="Maison">🏠 <span>Maison</span></button>
+      <button data-category="Parfums">🌸 <span>Parfums</span></button>
+      <button data-category="Alimentation">🛒 <span>Alimentation</span></button>
+      <button data-category="Autres">📦 <span>Autres</span></button>
     </div>
   </section>
 
-  <section>
-    <h2>Produits</h2>
+  <section class="section">
+    <div class="section-head"><h2>Produits</h2><span id="productStatus" class="muted"></span></div>
     <div id="products" class="products"></div>
   </section>
 </main>
 
-
-<div id="productModal" class="modal hidden"><div class="modal-card">
-<button class="close" onclick="closeProduct()">×</button><div id="productDetail"></div>
-</div></div>
-<div id="cartModal" class="modal hidden"><div class="modal-card">
-<button class="close" onclick="closeCart()">×</button><h2>🛒 Mon panier</h2>
-<div id="cartItems"></div><div id="cartTotal" class="cart-total"></div>
-<button class="primary" onclick="openCheckout()">Passer la commande</button>
-</div></div>
-<div id="checkoutModal" class="modal hidden"><div class="modal-card">
-<button class="close" onclick="closeCheckout()">×</button><h2>📦 Livraison</h2>
-<p>Indique où tu veux recevoir ta commande.</p>
-<input id="deliveryName" placeholder="Nom complet">
-<input id="deliveryPhone" type="tel" placeholder="Téléphone">
-<input id="deliveryAddress" placeholder="Adresse / quartier">
-<select id="paymentMethod"><option value="">Choisir le paiement</option>
-<option value="livraison">Paiement à la livraison</option><option value="wave">Wave</option><option value="orange">Orange Money</option></select>
-<button class="primary" onclick="placeOrder()">Confirmer la commande</button>
-</div></div>
-
-<div id="authModal" class="modal hidden">
+<div class="modal hidden" id="authModal" role="dialog" aria-modal="true">
   <div class="modal-card">
-    <button class="close" onclick="closeAuth()">×</button>
-
-    <div id="loginForm">
-      <h2>Connexion</h2>
-      <input id="loginEmail" type="email" placeholder="Email">
-      <input id="loginPassword" type="password" placeholder="Mot de passe">
-      <button class="primary" onclick="login()">Se connecter</button>
-      <p>Pas encore de compte ? <button class="link" onclick="showRegister()">Créer un compte</button></p>
+    <button class="close" data-close="authModal">×</button>
+    <h2 id="authTitle">Connexion</h2>
+    <div class="tabs">
+      <button class="tab active" id="loginTab">Connexion</button>
+      <button class="tab" id="signupTab">Créer un compte</button>
     </div>
-
-    <div id="registerForm" class="hidden">
-      <h2>Créer un compte</h2>
-      <input id="regName" placeholder="Nom complet">
-      <input id="regPhone" type="tel" placeholder="Téléphone">
-      <input id="regEmail" type="email" placeholder="Email">
-      <input id="regPassword" type="password" placeholder="Mot de passe">
-
-      <h3>Je veux :</h3>
-      <label class="role-option">
-        <input type="radio" name="role" value="client" checked>
-        <span>👤</span><strong>Client</strong> — Acheter des produits
-      </label>
-      <label class="role-option">
-        <input type="radio" name="role" value="vendeur">
-        <span>🏪</span><strong>Vendeur</strong> — Vendre mes produits
-      </label>
-
-      <button class="primary" onclick="register()">S'inscrire</button>
-      <p>Déjà un compte ? <button class="link" onclick="showLogin()">Se connecter</button></p>
-    </div>
+    <form id="authForm">
+      <div id="signupFields" class="hidden">
+        <label>Nom complet<input id="fullName" autocomplete="name"></label>
+        <label>Téléphone<input id="phone" inputmode="tel" autocomplete="tel"></label>
+        <label>Type de compte
+          <select id="role"><option value="client">Client</option><option value="vendeur">Vendeur</option></select>
+        </label>
+      </div>
+      <label>Email<input id="email" type="email" required autocomplete="email"></label>
+      <label>Mot de passe<input id="password" type="password" minlength="6" required autocomplete="current-password"></label>
+      <button class="btn primary full" id="authSubmit" type="submit">Se connecter</button>
+      <p id="authMessage" class="message"></p>
+    </form>
   </div>
 </div>
 
-<div id="sellerModal" class="modal hidden">
-  <div class="modal-card seller-card">
-    <button class="close" onclick="closeSeller()">×</button>
-    <h2>🏪 Espace vendeur</h2>
-    <p id="sellerWelcome"></p>
+<div class="modal hidden" id="accountModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <button class="close" data-close="accountModal">×</button>
+    <h2>Mon compte</h2>
+    <div id="accountInfo"></div>
+    <button id="sellerBtn" class="btn primary full hidden">🏪 Espace vendeur</button>
+    <button id="logoutBtn" class="btn danger full">Déconnexion</button>
+  </div>
+</div>
 
-    <h3>Ajouter un produit</h3>
-    <input id="productName" placeholder="Nom du produit">
-    <input id="productPrice" type="number" min="0" placeholder="Prix en FCFA">
-    <select id="productCategory">
-      <option value="">Choisir une catégorie</option>
-      <option>Mode</option>
-      <option>Électronique</option>
-      <option>Maison</option>
-      <option>Parfums</option>
-      <option>Alimentation</option>
-      <option>Autres</option>
-    </select>
-    <textarea id="productDescription" placeholder="Description du produit"></textarea>
-    <input id="productStock" type="number" min="0" placeholder="Stock disponible">
-    <label class="file-label">📷 Photo du produit
-      <input id="productImage" type="file" accept="image/*" onchange="previewImage(event)">
-    </label>
-    <img id="imagePreview" class="image-preview hidden" alt="Aperçu du produit">
-
-    <button class="primary" onclick="addProduct()">Publier le produit</button>
-
+<div class="modal hidden" id="sellerModal" role="dialog" aria-modal="true">
+  <div class="modal-card wide">
+    <button class="close" data-close="sellerModal">×</button>
+    <h2>Espace vendeur</h2>
+    <form id="productForm" class="form-grid">
+      <label>Nom du produit<input id="pName" required></label>
+      <label>Prix (FCFA)<input id="pPrice" type="number" min="0" required></label>
+      <label>Catégorie<select id="pCategory" required><option>Mode</option><option>Électronique</option><option>Maison</option><option>Parfums</option><option>Alimentation</option><option>Autres</option></select></label>
+      <label>Stock<input id="pStock" type="number" min="0" value="1" required></label>
+      <label class="span-2">Image (URL, facultatif)<input id="pImage" type="url" placeholder="https://…"></label>
+      <label class="span-2">Description<textarea id="pDescription" rows="3"></textarea></label>
+      <button class="btn primary span-2" type="submit">Publier le produit</button>
+      <p id="sellerMessage" class="message span-2"></p>
+    </form>
     <h3>Mes produits</h3>
     <div id="sellerProducts" class="seller-products"></div>
+  </div>
+</div>
 
-    <h3>📦 Mes commandes</h3>
-    <div id="sellerOrders" class="seller-orders"></div>
+<div class="modal hidden" id="cartModal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <button class="close" data-close="cartModal">×</button>
+    <h2>Mon panier</h2>
+    <div id="cartItems"></div>
+    <div class="cart-total"><span>Total</span><strong id="cartTotal">0 FCFA</strong></div>
+    <button id="orderBtn" class="btn primary full">Passer la commande</button>
+    <p id="cartMessage" class="message"></p>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js?v=4"></script>
+<script src="app.js?v=1"></script>
 </body>
 </html>

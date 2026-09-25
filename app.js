@@ -351,7 +351,7 @@ function previewImage(event) {
   reader.readAsDataURL(file);
 }
 
-function addProduct() {
+async function addProduct() {
   const user = getCurrentUser();
 
   if (!user || user.role !== 'vendeur') {
@@ -359,70 +359,67 @@ function addProduct() {
     return;
   }
 
-  const name = document.getElementById('productName').value.trim();
-  const price = Number(document.getElementById('productPrice').value);
-  const category = document.getElementById('productCategory').value;
-  const description =
-    document.getElementById('productDescription').value.trim();
-  const stock = Number(document.getElementById('productStock').value);
-  const file = document.getElementById('productImage').files?.[0];
+  const name = document.getElementById('productName')?.value.trim();
+  const price = Number(document.getElementById('productPrice')?.value);
+  const category = document.getElementById('productCategory')?.value;
+  const description = document.getElementById('productDescription')?.value.trim();
+  const stock = Number(document.getElementById('productStock')?.value);
+  const file = document.getElementById('productImage')?.files?.[0];
 
-  if (!name || price <= 0 || !category || !description || stock < 0) {
-    alert('Veuillez remplir tous les champs du produit.');
+  if (!name || price <= 0 || !category || stock < 0) {
+    alert('Veuillez remplir correctement tous les champs.');
     return;
   }
 
-  const createProduct = (image = '') => {
-    const products = getProducts();
+  const saveToSupabase = async (image = '') => {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const authUser = sessionData.session?.user;
 
-    products.push({
-      id: Date.now().toString(),
-      sellerId: user.id,
-      sellerEmail: user.email,
-      sellerName: user.name,
-      name,
-      price,
-      category,
-      description,
-      stock,
-      image
-    });
+    if (!authUser) {
+      alert('Votre session a expiré. Reconnectez-vous.');
+      return;
+    }
 
-    saveProducts(products);
+    const { error } = await supabaseClient
+      .from('products')
+      .insert({
+        seller_id: authUser.id,
+        seller_name: user.name || authUser.email,
+        name: name,
+        price: price,
+        category: category,
+        description: description || '',
+        stock: stock,
+        image: image
+      });
 
-    [
-      'productName',
-      'productPrice',
-      'productDescription',
-      'productStock'
-    ].forEach(id => {
-      const input = document.getElementById(id);
-      if (input) input.value = '';
-    });
-
-    const categoryInput = document.getElementById('productCategory');
-    if (categoryInput) categoryInput.value = '';
-
-    const imageInput = document.getElementById('productImage');
-    if (imageInput) imageInput.value = '';
-
-    document.getElementById('imagePreview')?.classList.add('hidden');
-
-    renderSellerProducts();
-    renderProducts();
+    if (error) {
+      console.error(error);
+      alert('❌ Erreur : ' + error.message);
+      return;
+    }
 
     alert('✅ Produit publié avec succès !');
+
+    document.getElementById('productName').value = '';
+    document.getElementById('productPrice').value = '';
+    document.getElementById('productCategory').value = '';
+    document.getElementById('productDescription').value = '';
+    document.getElementById('productStock').value = '';
+    document.getElementById('productImage').value = '';
+
+    const preview = document.getElementById('imagePreview');
+    if (preview) preview.classList.add('hidden');
   };
 
   if (file) {
     const reader = new FileReader();
-    reader.onload = () => createProduct(reader.result);
+    reader.onload = () => saveToSupabase(reader.result);
     reader.readAsDataURL(file);
   } else {
-    createProduct();
+    await saveToSupabase();
   }
 }
-
 function renderSellerProducts() {
   const user = getCurrentUser();
   const sellerBox = document.getElementById('sellerProducts');

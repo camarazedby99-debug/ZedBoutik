@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#111827">
   <title>ZedBoutik — Achète. Vends. Simplement.</title>
-  <link rel="stylesheet" href="style.css?v=9">
+  <link rel="stylesheet" href="style.css?v=100">
 </head>
 <body>
 <header class="topbar">
@@ -123,6 +123,15 @@
 </div>
 
 
+
+<div class="modal hidden" id="productDetailModal" role="dialog" aria-modal="true">
+  <div class="modal-card wide">
+    <button class="close" data-close="productDetailModal">×</button>
+    <div id="productDetailContent"></div>
+  </div>
+</div>
+
+
 <div class="modal hidden" id="cartModal" role="dialog" aria-modal="true">
   <div class="modal-card">
     <button class="close" data-close="cartModal">×</button>
@@ -159,6 +168,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js?v=9"></script>
+<script src="app.js?v=100"></script>
 </body>
 </html>

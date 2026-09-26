@@ -168,6 +168,11 @@ function renderProducts(list){
       </div>
     </article>`).join("");
   document.querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click",()=>addToCart(b.dataset.add)));
+
+  document.querySelectorAll("[data-detail]").forEach(card=>card.addEventListener("click",(e)=>{
+    if(e.target.closest("button")) return;
+    openProductDetail(card.dataset.detail);
+  }));
 }
 function applyFilters(){
   const q=$("searchInput").value.trim().toLowerCase();
@@ -338,6 +343,32 @@ async function updateOrderStatus(id,status){
   const {error}=await db.from("orders").update({status}).eq("id",id).eq("seller_id",state.user.id);
   if(error){alert(error.message);return}
   await renderSellerOrders();
+}
+
+
+function openProductDetail(id){
+  const p=state.products.find(x=>String(x.id)===String(id));
+  if(!p) return;
+  const img=p.image ? `<img src="${esc(p.image)}" alt="${esc(p.name)}">` : `<div class="detail-placeholder">📦</div>`;
+  $("productDetailContent").innerHTML=`
+    <div class="detail-layout">
+      <div class="detail-image">${img}</div>
+      <div class="detail-info">
+        <div class="detail-category">${esc(p.category||"Produit")}</div>
+        <h2>${esc(p.name)}</h2>
+        <div class="detail-price">${money(p.price)}</div>
+        <div class="detail-stock">Stock disponible : ${Number(p.stock||0)}</div>
+        <div class="detail-seller">Vendeur : ${esc(p.seller_name||p.sellerName||"Vendeur ZedBoutik")}</div>
+        <div class="detail-description">${esc(p.description||"Aucune description pour ce produit.")}</div>
+        <div class="detail-actions">
+          <button class="btn primary" id="detailAddBtn">Ajouter au panier</button>
+          <button class="btn ghost" data-close="productDetailModal">Fermer</button>
+        </div>
+      </div>
+    </div>`;
+  $("detailAddBtn").addEventListener("click",()=>{addToCart(id); closeModal("productDetailModal");});
+  $("productDetailContent").querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>closeModal(b.dataset.close)));
+  openModal("productDetailModal");
 }
 
 function addToCart(id){

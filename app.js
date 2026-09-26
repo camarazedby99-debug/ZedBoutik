@@ -52,6 +52,7 @@ function bindUI(){
   $("sellerBtn").addEventListener("click",openSeller);
   $("productForm").addEventListener("submit",publishProduct);
   $("orderBtn").addEventListener("click",placeOrder);
+  $("orderForm").addEventListener("submit",submitOrder);
   $("searchBtn").addEventListener("click",applyFilters);
   $("searchInput").addEventListener("input",applyFilters);
   document.querySelectorAll("[data-category]").forEach(b=>b.addEventListener("click",()=>{
@@ -177,12 +178,14 @@ async function openSeller(){
   if(!state.user || currentRole()!=="vendeur"){alert("Compte vendeur requis.");return}
   message($("sellerMessage"),"");
   await renderSellerProducts();
+  await renderSellerOrders();
   openModal("sellerModal");
 }
 
 async function publishProduct(e){
   e.preventDefault();
   if(!state.user || currentRole()!=="vendeur") return message($("sellerMessage"),"Compte vendeur requis.","error");
+
   let imageUrl=null;
   const file=$("pImageFile").files?.[0];
   if(file){
@@ -195,6 +198,7 @@ async function publishProduct(e){
     const {data:publicData}=db.storage.from("product-images").getPublicUrl(path);
     imageUrl=publicData.publicUrl;
   }
+
   const row={
     seller_id:state.user.id,
     seller_name:currentName(),
@@ -229,6 +233,30 @@ async function deleteProduct(id){
   await loadProducts();await renderSellerProducts();
 }
 
+async function renderSellerOrders(){
+  if(!$("sellerOrders") || !state.user) return;
+  const {data,error}=await db.from("orders").select("*").eq("seller_id",state.user.id).order("created_at",{ascending:false}).limit(50);
+  if(error){
+    $("sellerOrders").innerHTML=`<p class="message error">${esc(error.message)}</p>`;
+    return;
+  }
+  if(!(data||[]).length){
+    $("sellerOrders").innerHTML="<p class='muted'>Aucune commande reçue pour le moment.</p>";
+    return;
+  }
+  $("sellerOrders").innerHTML=(data||[]).map(o=>`
+    <div class="seller-item order-item">
+      <div>
+        <strong>${esc(o.product_name)}</strong>
+        <div class="meta">${o.quantity} × ${money(o.unit_price)} = ${money(o.total_price)}</div>
+        <div class="meta">Client : ${esc(o.customer_name)} · ${esc(o.customer_phone)}</div>
+        <div class="meta">Adresse : ${esc(o.customer_city)} — ${esc(o.customer_address)}</div>
+        <div class="meta">Paiement : ${esc(o.payment_method)} · Statut : ${esc(o.status)}</div>
+        ${o.customer_message?`<div class="meta">Message : ${esc(o.customer_message)}</div>`:""}
+      </div>
+    </div>`).join("");
+}
+
 function addToCart(id){
   const p=state.products.find(x=>String(x.id)===String(id));if(!p)return;
   const item=state.cart.find(x=>String(x.id)===String(id));
@@ -247,7 +275,64 @@ function openCart(){
 function placeOrder(){
   if(!state.cart.length)return message($("cartMessage"),"Ton panier est vide.","error");
   if(!state.user){closeModal("cartModal");openAuth("login");return}
-  message($("cartMessage"),"Panier prêt. Le module de commande/paiement sera connecté après validation de cette base.","ok");
+  closeModal("cartModal");
+  $("orderName").value=currentName()||"";
+  $("orderPhone").value=state.profile?.phone||"";
+  message($("orderFormMessage"),"");
+  openModal("orderModal");
+}
+
+async function submitOrder(e){
+  e.preventDefault();
+  if(!state.user){openAuth("login");return}
+  if(!state.cart.length)return message($("orderFormMessage"),"Ton panier est vide.","error");
+
+  const customer={
+    name:$("orderName").value.trim(),
+    phone:$("orderPhone").value.trim(),
+    city:$("orderCity").value.trim(),
+    address:$("orderAddress").value.trim(),
+    payment_method:$("paymentMethod").value,
+    message:$("orderMessage").value.trim()
+  };
+  if(!customer.name || !customer.phone || !customer.city || !customer.address){
+    return message($("orderFormMessage"),"Remplis les informations de livraison.","error");
+  }
+
+  const rows=[];
+  for(const item of state.cart){
+    const p=state.products.find(x=>String(x.id)===String(item.id));
+    if(!p) continue;
+    rows.push({
+      customer_id:state.user.id,
+      customer_name:customer.name,
+      customer_phone:customer.phone,
+      customer_city:customer.city,
+      customer_address:customer.address,
+      payment_method:customer.payment_method,
+      customer_message:customer.message,
+      seller_id:p.seller_id,
+      seller_name:p.seller_name || "",
+      product_id:p.id,
+      product_name:p.name,
+      quantity:item.qty,
+      unit_price:item.price,
+      total_price:item.price*item.qty,
+      status:"nouvelle"
+    });
+  }
+
+  if(!rows.length)return message($("orderFormMessage"),"Aucun produit valide dans le panier.","error");
+  message($("orderFormMessage"),"Envoi de la commande…");
+  const {error}=await db.from("orders").insert(rows);
+  if(error)return message($("orderFormMessage"),error.message,"error");
+
+  state.cart=[];
+  saveJSON("zedboutik_cart",state.cart);
+  updateCart();
+  $("orderForm").reset();
+  closeModal("orderModal");
+  alert("Commande envoyée avec succès !");
 }
 
 init().catch(err=>{

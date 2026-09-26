@@ -154,26 +154,53 @@ async function loadProducts(){
   renderProducts(state.products);
 }
 
-function renderProducts(list){
-  if(!list.length){$("products").innerHTML='<div class="empty">Aucun produit pour le moment.</div>';return}
-  $("products").innerHTML=list.map(p=>`
-    <article class="product">
-      <div class="product-media">${p.image?`<img src="${esc(p.image)}" alt="${esc(p.name)}" loading="lazy" onerror="this.parentElement.innerHTML='📦'">`:"📦"}</div>
-      <div class="product-body">
-        <div class="meta">${esc(p.category||"Autres")}</div>
-        <h3>${esc(p.name)}</h3>
-        <div class="price">${money(p.price)}</div>
-        <div class="meta">Stock : ${p.stock}</div>
-        <button class="btn primary" data-add="${esc(p.id)}" ${p.stock<=0?"disabled":""}>Ajouter</button>
+function renderProducts(filter=""){
+  const q=String(filter||"").trim().toLowerCase();
+  const list=state.products.filter(p=>{
+    return !q || String(p.name||"").toLowerCase().includes(q) || String(p.category||"").toLowerCase().includes(q);
+  });
+
+  if($("productCount")) $("productCount").textContent=`${list.length} produit(s)`;
+
+  if(!list.length){
+    $("productsGrid").innerHTML=`<div class="empty">Aucun produit trouvé.</div>`;
+    return;
+  }
+
+  $("productsGrid").innerHTML=list.map(p=>`
+    <article class="product-card" data-detail="${esc(p.id)}">
+      <div class="product-img">
+        ${p.image?`<img src="${esc(p.image)}" alt="${esc(p.name)}">`:`<span>📦</span>`}
       </div>
-    </article>`).join("");
-  document.querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click",()=>addToCart(b.dataset.add)));
+      <div class="product-body">
+        <div class="product-cat">${esc(p.category||"Produit")}</div>
+        <h3>${esc(p.name)}</h3>
+        <strong>${money(p.price)}</strong>
+        <p>Stock : ${Number(p.stock||0)}</p>
+        <div class="product-actions">
+          <button class="detail-card-btn" data-view="${esc(p.id)}">Voir détail</button>
+          <button class="add-btn" data-add="${esc(p.id)}">Ajouter</button>
+        </div>
+      </div>
+    </article>
+  `).join("");
+
+  document.querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click",(e)=>{
+    e.stopPropagation();
+    addToCart(b.dataset.add);
+  }));
+
+  document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",(e)=>{
+    e.stopPropagation();
+    openProductDetail(b.dataset.view);
+  }));
 
   document.querySelectorAll("[data-detail]").forEach(card=>card.addEventListener("click",(e)=>{
     if(e.target.closest("button")) return;
     openProductDetail(card.dataset.detail);
   }));
 }
+
 function applyFilters(){
   const q=$("searchInput").value.trim().toLowerCase();
   renderProducts(!q?state.products:state.products.filter(p=>[p.name,p.category,p.description,p.seller_name].some(v=>String(v||"").toLowerCase().includes(q))));

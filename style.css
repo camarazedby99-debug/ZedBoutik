@@ -61,3 +61,6 @@ label{display:block;font-weight:700;margin:12px 0 5px}input,select,textarea{widt
 .product-card{cursor:pointer}
 .product-card .add-btn,.product-card button{cursor:pointer}
 @media(max-width:720px){.detail-layout{grid-template-columns:1fr}.detail-image{min-height:210px}}
+
+.detail-card-btn{width:100%;border:0;border-radius:14px;padding:12px 14px;font-weight:900;background:#eef2ff;color:#1d4ed8;margin-top:10px}
+.product-actions{display:grid;gap:8px;margin-top:10px}

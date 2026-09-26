@@ -246,7 +246,8 @@ function normalizePhoneForWhatsApp(phone){
 function whatsappOrderLink(o){
   const phone=normalizePhoneForWhatsApp(o.customer_phone);
   if(!phone) return "#";
-  const text=`Bonjour ${o.customer_name}, votre commande ${o.product_name} de ${money(o.total_price)} sur ZedBoutik est confirmée. Livraison : ${o.customer_city} — ${o.customer_address}. Paiement : ${o.payment_method}.`;
+  const total=Number(o.total_price||0)+Number(o.delivery_fee||0);
+  const text=`Bonjour ${o.customer_name}, votre commande ${o.product_name} de ${money(o.total_price)} sur ZedBoutik est confirmée. Frais de livraison : ${money(o.delivery_fee||0)}. Total à payer : ${money(total)}. Livraison : ${o.customer_city} — ${o.customer_address}. Paiement : ${o.payment_method}.`;
   return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
 }
 
@@ -269,6 +270,7 @@ async function renderSellerOrders(){
       <div>
         <strong>${esc(o.product_name)}</strong>
         <div class="meta">${o.quantity} × ${money(o.unit_price)} = ${money(o.total_price)}</div>
+        <div class="meta">Livraison : ${money(o.delivery_fee || 0)} · Total à payer : <strong>${money(Number(o.total_price||0)+Number(o.delivery_fee||0))}</strong></div>
         <div class="meta">Client : ${esc(o.customer_name)} · ${esc(o.customer_phone)}</div>
         <div class="meta">Adresse : ${esc(o.customer_city)} — ${esc(o.customer_address)}</div>
         <div class="meta">Paiement : ${esc(o.payment_method)} · Statut : <span class="status-pill ${esc(cls)}">${esc(status)}</span></div>
@@ -332,6 +334,7 @@ async function submitOrder(e){
     phone:$("orderPhone").value.trim(),
     city:$("orderCity").value.trim(),
     address:$("orderAddress").value.trim(),
+    delivery_fee:Number($("deliveryFee").value || 0),
     payment_method:$("paymentMethod").value,
     message:$("orderMessage").value.trim()
   };
@@ -349,6 +352,7 @@ async function submitOrder(e){
       customer_phone:customer.phone,
       customer_city:customer.city,
       customer_address:customer.address,
+      delivery_fee:customer.delivery_fee,
       payment_method:customer.payment_method,
       customer_message:customer.message,
       seller_id:p.seller_id,

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#111827">
   <title>ZedBoutik — Achète. Vends. Simplement.</title>
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 <header class="topbar">
@@ -121,6 +121,7 @@
       <label>Téléphone<input id="orderPhone" required inputmode="tel" autocomplete="tel"></label>
       <label>Ville / Quartier<input id="orderCity" required placeholder="Ex : Diaobé, Dakar, Pikine…"></label>
       <label>Adresse complète<textarea id="orderAddress" rows="3" required placeholder="Décris où livrer la commande"></textarea></label>
+      <label>Frais de livraison (FCFA)<input id="deliveryFee" type="number" min="0" value="1000" required></label>
       <label>Mode de paiement
         <select id="paymentMethod" required>
           <option value="Paiement à la livraison">Paiement à la livraison</option>
@@ -136,6 +137,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js?v=5"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>

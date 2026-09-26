@@ -26,3 +26,11 @@ label{display:block;font-weight:700;margin:12px 0 5px}input,select,textarea{widt
 
 .whatsapp-btn{display:inline-block;margin-top:10px;text-decoration:none;border-radius:12px;padding:10px 12px;font-weight:900;background:#dcfce7;color:#166534}
 .whatsapp-btn:hover{filter:brightness(.98)}
+
+.cart-line{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid var(--line);padding:14px 0}
+.cart-line-title{font-weight:900}
+.qty-actions{display:flex;align-items:center;gap:8px;margin-top:8px}
+.qty-actions button{border:0;border-radius:10px;min-width:36px;height:36px;font-weight:900;background:#eef2f6;color:#111827}
+.qty-actions .remove{background:#fee2e2;color:#991b1b;padding:0 12px}
+.qty-num{min-width:26px;text-align:center;font-weight:900}
+.cart-subtotal{font-weight:900}

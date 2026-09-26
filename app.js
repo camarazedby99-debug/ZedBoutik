@@ -309,11 +309,53 @@ function updateCart(){
   $("cartCount").textContent=state.cart.reduce((n,x)=>n+x.qty,0);
 }
 function openCart(){
-  $("cartItems").innerHTML=state.cart.length?state.cart.map(x=>`<div class="cart-item"><div><strong>${esc(x.name)}</strong><div class="meta">${x.qty} × ${money(x.price)}</div></div><button class="btn ghost" data-remove="${esc(x.id)}">Retirer</button></div>`).join(""):"<p class='muted'>Ton panier est vide.</p>";
+  if(!state.cart.length){
+    $("cartItems").innerHTML="<p class='muted'>Ton panier est vide.</p>";
+  }else{
+    $("cartItems").innerHTML=state.cart.map(x=>`
+      <div class="cart-line">
+        <div>
+          <div class="cart-line-title">${esc(x.name)}</div>
+          <div class="meta">${money(x.price)} l’unité</div>
+          <div class="qty-actions">
+            <button data-minus="${esc(x.id)}">−</button>
+            <span class="qty-num">${x.qty}</span>
+            <button data-plus="${esc(x.id)}">+</button>
+            <button class="remove" data-remove="${esc(x.id)}">Retirer</button>
+          </div>
+        </div>
+        <div class="cart-subtotal">${money(x.price*x.qty)}</div>
+      </div>`).join("");
+  }
+
   $("cartTotal").textContent=money(state.cart.reduce((s,x)=>s+x.price*x.qty,0));
-  document.querySelectorAll("[data-remove]").forEach(b=>b.addEventListener("click",()=>{state.cart=state.cart.filter(x=>String(x.id)!==String(b.dataset.remove));saveJSON("zedboutik_cart",state.cart);updateCart();openCart()}));
-  message($("cartMessage"),"");openModal("cartModal");
+
+  document.querySelectorAll("[data-minus]").forEach(b=>b.addEventListener("click",()=>changeCartQty(b.dataset.minus,-1)));
+  document.querySelectorAll("[data-plus]").forEach(b=>b.addEventListener("click",()=>changeCartQty(b.dataset.plus,1)));
+  document.querySelectorAll("[data-remove]").forEach(b=>b.addEventListener("click",()=>removeCartItem(b.dataset.remove)));
+
+  message($("cartMessage"),"");
+  openModal("cartModal");
 }
+
+function changeCartQty(id,delta){
+  const item=state.cart.find(x=>String(x.id)===String(id));
+  if(!item) return;
+  const product=state.products.find(p=>String(p.id)===String(id));
+  const maxStock=Number(product?.stock||99);
+  item.qty=Math.max(1,Math.min(maxStock,item.qty+delta));
+  saveJSON("zedboutik_cart",state.cart);
+  updateCart();
+  openCart();
+}
+
+function removeCartItem(id){
+  state.cart=state.cart.filter(x=>String(x.id)!==String(id));
+  saveJSON("zedboutik_cart",state.cart);
+  updateCart();
+  openCart();
+}
+
 function placeOrder(){
   if(!state.cart.length)return message($("cartMessage"),"Ton panier est vide.","error");
   if(!state.user){closeModal("cartModal");openAuth("login");return}

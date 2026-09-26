@@ -23,3 +23,6 @@ label{display:block;font-weight:700;margin:12px 0 5px}input,select,textarea{widt
 .status-pill.en_livraison{background:#fef3c7;color:#92400e}
 .status-pill.livree{background:#dcfce7;color:#166534}
 .status-pill.annulee{background:#fee2e2;color:#991b1b}
+
+.whatsapp-btn{display:inline-block;margin-top:10px;text-decoration:none;border-radius:12px;padding:10px 12px;font-weight:900;background:#dcfce7;color:#166534}
+.whatsapp-btn:hover{filter:brightness(.98)}

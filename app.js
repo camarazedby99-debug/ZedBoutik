@@ -233,6 +233,23 @@ async function deleteProduct(id){
   await loadProducts();await renderSellerProducts();
 }
 
+
+function normalizePhoneForWhatsApp(phone){
+  let n=String(phone||"").replace(/\D/g,"");
+  if(!n) return "";
+  if(n.startsWith("00")) n=n.slice(2);
+  if(n.startsWith("221")) return n;
+  if(n.length===9) return "221"+n;
+  return n;
+}
+
+function whatsappOrderLink(o){
+  const phone=normalizePhoneForWhatsApp(o.customer_phone);
+  if(!phone) return "#";
+  const text=`Bonjour ${o.customer_name}, votre commande ${o.product_name} de ${money(o.total_price)} sur ZedBoutik est confirmée. Livraison : ${o.customer_city} — ${o.customer_address}. Paiement : ${o.payment_method}.`;
+  return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+}
+
 async function renderSellerOrders(){
   if(!$("sellerOrders") || !state.user) return;
   const {data,error}=await db.from("orders").select("*").eq("seller_id",state.user.id).order("created_at",{ascending:false}).limit(50);
@@ -262,6 +279,7 @@ async function renderSellerOrders(){
           ${statusButton(o.id,status,"livrée","Livrée")}
           ${statusButton(o.id,status,"annulée","Annuler")}
         </div>
+        <a class="whatsapp-btn" href="${esc(whatsappOrderLink(o))}" target="_blank" rel="noopener">💬 WhatsApp client</a>
       </div>
     </div>`;
   }).join("");

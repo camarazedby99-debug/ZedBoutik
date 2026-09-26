@@ -467,3 +467,7 @@ init().catch(err=>{
   $("products").innerHTML=`<div class="empty">Erreur de démarrage : ${esc(err.message||err)}</div>`;
 });
 })();
+document.addEventListener("DOMContentLoaded",()=>{
+  document.getElementById("heroBuyBtn")?.addEventListener("click",()=>document.getElementById("productsTitle")?.scrollIntoView({behavior:"smooth"}));
+  document.getElementById("heroSellBtn")?.addEventListener("click",()=>state.user?openAccount():openAuth("login"));
+});

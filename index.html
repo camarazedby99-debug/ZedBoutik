@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#111827">
   <title>ZedBoutik — Achète. Vends. Simplement.</title>
-  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 <header class="topbar">
@@ -26,7 +26,18 @@
     <p class="eyebrow">Marketplace sénégalaise</p>
     <h1>Achète. Vends.<br>Simplement.</h1>
     <p>Découvre les produits de vendeurs partout au Sénégal.</p>
-  </section>
+  
+      <div class="hero-actions">
+        <button id="heroBuyBtn" class="hero-btn light">🛒 Acheter</button>
+        <button id="heroSellBtn" class="hero-btn dark">🏪 Vendre</button>
+      </div>
+</section>
+    <section class="trust-grid">
+      <div class="trust-card"><strong>✅ Produits locaux</strong><span>Des vendeurs sénégalais peuvent publier leurs produits.</span></div>
+      <div class="trust-card"><strong>📦 Commande simple</strong><span>Le client commande avec adresse, paiement et livraison.</span></div>
+      <div class="trust-card"><strong>💬 Contact rapide</strong><span>Le vendeur contacte le client directement par WhatsApp.</span></div>
+    </section>
+
 
   <section class="section">
     <div class="section-head"><h2>Catégories</h2><button class="link-btn" data-category="">Tout voir</button></div>
@@ -148,6 +159,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js?v=8"></script>
+<script src="app.js?v=9"></script>
 </body>
 </html>

@@ -244,17 +244,39 @@ async function renderSellerOrders(){
     $("sellerOrders").innerHTML="<p class='muted'>Aucune commande reçue pour le moment.</p>";
     return;
   }
-  $("sellerOrders").innerHTML=(data||[]).map(o=>`
+  $("sellerOrders").innerHTML=(data||[]).map(o=>{
+    const status=String(o.status||"nouvelle");
+    const cls=status.replaceAll(" ","_").replace("confirmée","confirmee").replace("livrée","livree").replace("annulée","annulee");
+    return `
     <div class="seller-item order-item">
       <div>
         <strong>${esc(o.product_name)}</strong>
         <div class="meta">${o.quantity} × ${money(o.unit_price)} = ${money(o.total_price)}</div>
         <div class="meta">Client : ${esc(o.customer_name)} · ${esc(o.customer_phone)}</div>
         <div class="meta">Adresse : ${esc(o.customer_city)} — ${esc(o.customer_address)}</div>
-        <div class="meta">Paiement : ${esc(o.payment_method)} · Statut : ${esc(o.status)}</div>
+        <div class="meta">Paiement : ${esc(o.payment_method)} · Statut : <span class="status-pill ${esc(cls)}">${esc(status)}</span></div>
         ${o.customer_message?`<div class="meta">Message : ${esc(o.customer_message)}</div>`:""}
+        <div class="status-actions">
+          ${statusButton(o.id,status,"confirmée","Confirmer")}
+          ${statusButton(o.id,status,"en livraison","En livraison")}
+          ${statusButton(o.id,status,"livrée","Livrée")}
+          ${statusButton(o.id,status,"annulée","Annuler")}
+        </div>
       </div>
-    </div>`).join("");
+    </div>`;
+  }).join("");
+  document.querySelectorAll("[data-status-id]").forEach(b=>b.addEventListener("click",()=>updateOrderStatus(b.dataset.statusId,b.dataset.statusValue)));
+}
+
+function statusButton(id,current,value,label){
+  return `<button class="${current===value?'active':''}" data-status-id="${esc(id)}" data-status-value="${esc(value)}">${esc(label)}</button>`;
+}
+
+async function updateOrderStatus(id,status){
+  if(!state.user) return;
+  const {error}=await db.from("orders").update({status}).eq("id",id).eq("seller_id",state.user.id);
+  if(error){alert(error.message);return}
+  await renderSellerOrders();
 }
 
 function addToCart(id){

@@ -157,18 +157,34 @@ async function loadProducts(){
 function renderProducts(list){
   if(!list.length){$("products").innerHTML='<div class="empty">Aucun produit pour le moment.</div>';return}
   $("products").innerHTML=list.map(p=>`
-    <article class="product">
+    <article class="product" data-detail="${esc(p.id)}">
       <div class="product-media">${p.image?`<img src="${esc(p.image)}" alt="${esc(p.name)}" loading="lazy" onerror="this.parentElement.innerHTML='📦'">`:"📦"}</div>
       <div class="product-body">
         <div class="meta">${esc(p.category||"Autres")}</div>
         <h3>${esc(p.name)}</h3>
         <div class="price">${money(p.price)}</div>
         <div class="meta">Stock : ${p.stock}</div>
+        <button class="detail-card-btn" data-view="${esc(p.id)}">Voir détail</button>
         <button class="btn primary" data-add="${esc(p.id)}" ${p.stock<=0?"disabled":""}>Ajouter</button>
       </div>
     </article>`).join("");
-  document.querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click",()=>addToCart(b.dataset.add)));
+
+  document.querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click",(e)=>{
+    e.stopPropagation();
+    addToCart(b.dataset.add);
+  }));
+
+  document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",(e)=>{
+    e.stopPropagation();
+    openProductDetail(b.dataset.view);
+  }));
+
+  document.querySelectorAll("[data-detail]").forEach(card=>card.addEventListener("click",(e)=>{
+    if(e.target.closest("button")) return;
+    openProductDetail(card.dataset.detail);
+  }));
 }
+
 function applyFilters(){
   const q=$("searchInput").value.trim().toLowerCase();
   renderProducts(!q?state.products:state.products.filter(p=>[p.name,p.category,p.description,p.seller_name].some(v=>String(v||"").toLowerCase().includes(q))));
@@ -497,34 +513,3 @@ document.addEventListener("DOMContentLoaded",()=>{
   document.getElementById("heroBuyBtn")?.addEventListener("click",()=>document.getElementById("productsTitle")?.scrollIntoView({behavior:"smooth"}));
   document.getElementById("heroSellBtn")?.addEventListener("click",()=>state.user?openAccount():openAuth("login"));
 });
-
-
-function enhanceProductCardsForDetails(){
-  const cards=[...document.querySelectorAll(".product-card")];
-  cards.forEach((card,idx)=>{
-    const product=state.products[idx];
-    if(!product || card.dataset.detailReady==="1") return;
-    card.dataset.detailReady="1";
-    const body=card.querySelector(".product-body") || card;
-    const actions=document.createElement("div");
-    actions.className="product-actions";
-    const view=document.createElement("button");
-    view.className="detail-card-btn";
-    view.textContent="Voir détail";
-    view.type="button";
-    view.addEventListener("click",(e)=>{e.stopPropagation(); openProductDetail(product.id);});
-    actions.appendChild(view);
-    body.appendChild(actions);
-    card.addEventListener("click",(e)=>{
-      if(e.target.closest("button")) return;
-      openProductDetail(product.id);
-    });
-  });
-}
-
-
-const originalRenderProductsZedBoutik = renderProducts;
-renderProducts = function(...args){
-  originalRenderProductsZedBoutik.apply(this,args);
-  setTimeout(enhanceProductCardsForDetails,0);
-};

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#111827">
   <title>ZedBoutik — Achète. Vends. Simplement.</title>
-  <link rel="stylesheet" href="style.css?v=1">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 <header class="topbar">
@@ -89,7 +89,7 @@
       <label>Prix (FCFA)<input id="pPrice" type="number" min="0" required></label>
       <label>Catégorie<select id="pCategory" required><option>Mode</option><option>Électronique</option><option>Maison</option><option>Parfums</option><option>Alimentation</option><option>Autres</option></select></label>
       <label>Stock<input id="pStock" type="number" min="0" value="1" required></label>
-      <label class="span-2">Image (URL, facultatif)<input id="pImage" type="url" placeholder="https://…"></label>
+      <label class="span-2">Photo du produit<input id="pImageFile" type="file" accept="image/*"></label>
       <label class="span-2">Description<textarea id="pDescription" rows="3"></textarea></label>
       <button class="btn primary span-2" type="submit">Publier le produit</button>
       <p id="sellerMessage" class="message span-2"></p>
@@ -111,6 +111,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js?v=1"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>

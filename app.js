@@ -183,6 +183,18 @@ async function openSeller(){
 async function publishProduct(e){
   e.preventDefault();
   if(!state.user || currentRole()!=="vendeur") return message($("sellerMessage"),"Compte vendeur requis.","error");
+  let imageUrl=null;
+  const file=$("pImageFile").files?.[0];
+  if(file){
+    if(file.size > 5*1024*1024) return message($("sellerMessage"),"La photo doit faire moins de 5 Mo.","error");
+    message($("sellerMessage"),"Envoi de la photo…");
+    const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"");
+    const path=`${state.user.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+    const {error:uploadError}=await db.storage.from("product-images").upload(path,file,{cacheControl:"3600",upsert:false});
+    if(uploadError) return message($("sellerMessage"),"Photo : "+uploadError.message,"error");
+    const {data:publicData}=db.storage.from("product-images").getPublicUrl(path);
+    imageUrl=publicData.publicUrl;
+  }
   const row={
     seller_id:state.user.id,
     seller_name:currentName(),
@@ -191,7 +203,7 @@ async function publishProduct(e){
     category:$("pCategory").value,
     description:$("pDescription").value.trim(),
     stock:Number($("pStock").value),
-    image:$("pImage").value.trim()||null
+    image:imageUrl
   };
   message($("sellerMessage"),"Publication…");
   const {error}=await db.from("products").insert(row);

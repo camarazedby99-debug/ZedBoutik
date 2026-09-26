@@ -34,3 +34,7 @@ label{display:block;font-weight:700;margin:12px 0 5px}input,select,textarea{widt
 .qty-actions .remove{background:#fee2e2;color:#991b1b;padding:0 12px}
 .qty-num{min-width:26px;text-align:center;font-weight:900}
 .cart-subtotal{font-weight:900}
+
+.client-order-card{border-top:1px solid var(--line);padding:14px 0}
+.client-order-card strong{font-size:17px}
+.client-order-card .meta{line-height:1.5}

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#111827">
   <title>ZedBoutik — Achète. Vends. Simplement.</title>
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 <header class="topbar">
@@ -75,6 +75,7 @@
     <button class="close" data-close="accountModal">×</button>
     <h2>Mon compte</h2>
     <div id="accountInfo"></div>
+    <button id="clientOrdersBtn" class="btn primary full">📦 Mes commandes</button>
     <button id="sellerBtn" class="btn primary full hidden">🏪 Espace vendeur</button>
     <button id="logoutBtn" class="btn danger full">Déconnexion</button>
   </div>
@@ -100,6 +101,16 @@
     <div id="sellerOrders" class="seller-products"></div>
   </div>
 </div>
+
+
+<div class="modal hidden" id="clientOrdersModal" role="dialog" aria-modal="true">
+  <div class="modal-card wide">
+    <button class="close" data-close="clientOrdersModal">×</button>
+    <h2>Mes commandes</h2>
+    <div id="clientOrders" class="seller-products"></div>
+  </div>
+</div>
+
 
 <div class="modal hidden" id="cartModal" role="dialog" aria-modal="true">
   <div class="modal-card">
@@ -137,6 +148,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js?v=7"></script>
+<script src="app.js?v=8"></script>
 </body>
 </html>

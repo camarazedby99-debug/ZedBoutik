@@ -49,6 +49,7 @@ function bindUI(){
   $("signupTab").addEventListener("click",()=>openAuth("signup"));
   $("authForm").addEventListener("submit",handleAuth);
   $("logoutBtn").addEventListener("click",logout);
+  $("clientOrdersBtn").addEventListener("click",openClientOrders);
   $("sellerBtn").addEventListener("click",openSeller);
   $("productForm").addEventListener("submit",publishProduct);
   $("orderBtn").addEventListener("click",placeOrder);
@@ -171,6 +172,46 @@ function renderProducts(list){
 function applyFilters(){
   const q=$("searchInput").value.trim().toLowerCase();
   renderProducts(!q?state.products:state.products.filter(p=>[p.name,p.category,p.description,p.seller_name].some(v=>String(v||"").toLowerCase().includes(q))));
+}
+
+
+async function openClientOrders(){
+  if(!state.user){openAuth("login");return}
+  closeModal("accountModal");
+  openModal("clientOrdersModal");
+  $("clientOrders").innerHTML="<p class='muted'>Chargement des commandes…</p>";
+
+  const {data,error}=await db
+    .from("orders")
+    .select("*")
+    .eq("customer_id",state.user.id)
+    .order("created_at",{ascending:false})
+    .limit(50);
+
+  if(error){
+    $("clientOrders").innerHTML=`<p class="message error">${esc(error.message)}</p>`;
+    return;
+  }
+
+  if(!(data||[]).length){
+    $("clientOrders").innerHTML="<p class='muted'>Aucune commande pour le moment.</p>";
+    return;
+  }
+
+  $("clientOrders").innerHTML=(data||[]).map(o=>{
+    const status=String(o.status||"nouvelle");
+    const cls=status.replaceAll(" ","_").replace("confirmée","confirmee").replace("livrée","livree").replace("annulée","annulee");
+    const total=Number(o.total_price||0)+Number(o.delivery_fee||0);
+    return `
+      <div class="client-order-card">
+        <strong>${esc(o.product_name)}</strong>
+        <div class="meta">Quantité : ${o.quantity} · Produit : ${money(o.total_price)}</div>
+        <div class="meta">Livraison : ${money(o.delivery_fee || 0)} · Total : <strong>${money(total)}</strong></div>
+        <div class="meta">Paiement : ${esc(o.payment_method)}</div>
+        <div class="meta">Adresse : ${esc(o.customer_city)} — ${esc(o.customer_address)}</div>
+        <div class="meta">Statut : <span class="status-pill ${esc(cls)}">${esc(status)}</span></div>
+      </div>`;
+  }).join("");
 }
 
 async function openSeller(){
